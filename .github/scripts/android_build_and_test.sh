@@ -82,7 +82,14 @@ run_python() {
 }
 
 echo "::group::Smoke test"
-run_python android_smoke_test.py "${api_level}"
+if ! run_python android_smoke_test.py "${api_level}"; then
+  echo "::endgroup::"
+  echo "::group::Device crash log"
+  adb shell getprop ro.product.cpu.abilist || true
+  adb logcat -d -b crash || true
+  echo "::endgroup::"
+  exit 1
+fi
 echo "::endgroup::"
 
 if [[ "${RUN_UNIT_TESTS:-1}" == "1" ]]; then

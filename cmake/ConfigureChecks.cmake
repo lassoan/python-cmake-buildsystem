@@ -3155,8 +3155,15 @@ if(CMAKE_SYSTEM MATCHES Linux)
 endif()
 
 if(ANDROID)
-  # Minimum Android API level (also enables sys.getandroidapilevel())
-  set(ANDROID_API_LEVEL ${CMAKE_SYSTEM_VERSION})
+  # Minimum Android API level (also enables sys.getandroidapilevel()).
+  # ANDROID_PLATFORM_LEVEL is set by the NDK toolchain file, which sets
+  # CMAKE_SYSTEM_VERSION to 1. CMAKE_SYSTEM_VERSION is the API level when
+  # using the Android support built into CMake.
+  if(ANDROID_PLATFORM_LEVEL)
+    set(ANDROID_API_LEVEL ${ANDROID_PLATFORM_LEVEL})
+  else()
+    set(ANDROID_API_LEVEL ${CMAKE_SYSTEM_VERSION})
+  endif()
   # Python >= 3.13 identifies Android as a separate platform
   if(PY_VERSION VERSION_LESS 3.13)
     set(PY_PLATFORM linux)
