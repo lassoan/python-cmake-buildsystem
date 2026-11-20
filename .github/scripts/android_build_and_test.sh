@@ -28,7 +28,7 @@ if [[ -n "${PY_VERSION:-}" ]]; then
   configure_args+=(-DPYTHON_VERSION:STRING=${PY_VERSION})
 fi
 if [[ -n "${CACHE_PRESET:-}" ]]; then
-  configure_args+=(-C "${CACHE_PRESET}")
+  configure_args+=(-C "$(cd "$(dirname "${CACHE_PRESET}")" && pwd)/$(basename "${CACHE_PRESET}")")
 else
   configure_args+=(-DCMAKE_CROSSCOMPILING_EMULATOR:FILEPATH="${src_dir}/run_on_android.sh")
 fi
@@ -95,6 +95,12 @@ echo "::endgroup::"
 if [[ "${RUN_UNIT_TESTS:-1}" == "1" ]]; then
   echo "::group::Unit tests"
   # Creating named pipes is denied by SELinux on Android (skipped by Python >= 3.13 test suite)
-  run_python -m test -u none --verbose2 --ignore "'*test_walk_named_pipe*'" test_math test_json test_re test_zlib test_decimal test_os test_unicode test_string test_struct test_datetime
+  ignore_args="--ignore '*test_walk_named_pipe*'"
+  device_api_level=$(adb shell getprop ro.build.version.sdk | tr -d '')
+  if [[ "${device_api_level}" -le 30 ]]; then
+    # Time zone rules given in the TZ environment variable are not applied as expected on Android 11 images
+    ignore_args+=" --ignore '*test_timestamp_naive*'"
+  fi
+  run_python -m test -u none --verbose2 ${ignore_args} test_math test_json test_re test_zlib test_decimal test_os test_unicode test_string test_struct test_datetime
   echo "::endgroup::"
 fi
