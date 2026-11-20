@@ -1,8 +1,6 @@
 # Driver script of the Windows jobs of the GitHub Actions workflow.
 #
-# Python is configured as by "circle_win_dashboard.cmake" of the "dashboard" branch.
-# "python_common.cmake" of that branch is expected to be checked out in
-# "<workspace>/scripts" and this repository in "<workspace>/src".
+# This repository is expected to be checked out in "<workspace>/src".
 
 # Sanity checks
 foreach(name IN ITEMS
@@ -57,4 +55,4 @@ PYTHON_VERSION:STRING=${PY_VERSION}
 ")
 
 # Include driver script
-include(${_workspace}/scripts/python_common.cmake)
+include(${CTEST_SCRIPT_DIRECTORY}/python_common.cmake)

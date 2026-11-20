@@ -3,9 +3,7 @@
 # The jobs run in a dockcross container (https://github.com/dockcross/dockcross),
 # which defines DEFAULT_DOCKCROSS_IMAGE, CROSS_TRIPLE and CMAKE_TOOLCHAIN_FILE.
 #
-# Python is configured as by "circle_dashboard.cmake" of the "dashboard" branch.
-# "python_common.cmake" of that branch is expected to be checked out in
-# "<workspace>/scripts" and this repository in "<workspace>/src".
+# This repository is expected to be checked out in "<workspace>/src".
 
 # Sanity checks
 foreach(name IN ITEMS
@@ -61,4 +59,4 @@ CMAKE_TOOLCHAIN_FILE:FILEPATH=$ENV{CMAKE_TOOLCHAIN_FILE}
 endif()
 
 # Include driver script
-include(${_workspace}/scripts/python_common.cmake)
+include(${CTEST_SCRIPT_DIRECTORY}/python_common.cmake)

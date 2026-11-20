@@ -42,30 +42,22 @@ jobs:
       with:
         version: 1.10.0
 
-    - name: Download dashboard script
-      uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      with:
-        repository: 'python-cmake-buildsystem/python-cmake-buildsystem'
-        ref: dashboard
-        fetch-depth: 0
-        path: scripts
-
     - name: Writing initial dashboard cache
       shell: bash
       run: |
-        cat > scripts/initial-dashboard-cache.txt << EOF
+        cat > initial-dashboard-cache.txt << EOF
         ${{ matrix.initial-dashboard-cache }}
         EOF
-        cat scripts/initial-dashboard-cache.txt
+        cat initial-dashboard-cache.txt
 
     - name: Build & Test
-      run: ctest --timeout 360 -S scripts/github_actions_dashboard.cmake -VV
+      run: ctest --timeout 360 -S src/.github/dashboard/github_actions_macos_dashboard.cmake -VV
       env:
         PY_VERSION: ${{ matrix.python-version }}
         CC: ${{ matrix.c-compiler }}
         CXX: ${{ matrix.cxx-compiler }}
 
-  # Same builds as the "build-test-python" jobs of .circleci/config.yml
+  # Linux builds in dockcross containers (https://github.com/dockcross/dockcross)
   tests-linux:
     runs-on: ubuntu-24.04
     container:
@@ -100,21 +92,11 @@ jobs:
           tcl-dev \
           tk-dev
 
-    - name: Download dashboard script
-      uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      with:
-        repository: 'python-cmake-buildsystem/python-cmake-buildsystem'
-        ref: dashboard
-        fetch-depth: 0
-        path: scripts
-
     - name: Build & Test
       run: ctest --timeout 360 -S src/.github/dashboard/github_actions_linux_dashboard.cmake -VV
       env:
         PY_VERSION: ${{ matrix.python-version }}
 
-  # Same builds as the "build-test-python-win" jobs of .circleci/config.yml,
-  # with a newer version of Visual Studio.
   tests-windows:
     runs-on: windows-2022
     strategy:
@@ -130,14 +112,6 @@ jobs:
       with:
         fetch-depth: 0
         path: src
-
-    - name: Download dashboard script
-      uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      with:
-        repository: 'python-cmake-buildsystem/python-cmake-buildsystem'
-        ref: dashboard
-        fetch-depth: 0
-        path: scripts
 
     - name: Build & Test
       run: ctest -C Release -S src/.github/dashboard/github_actions_windows_dashboard.cmake -VV
