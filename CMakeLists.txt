@@ -805,7 +805,7 @@ if(UNIX)
 
     # Makefile
     set(MAKEFILE_LDSHARED_FLAGS "-shared")
-    if(APPLE OR ANDROID)
+    if(APPLE)
         set(MAKEFILE_LDSHARED_FLAGS "-dynamiclib -headerpad_max_install_names -undefined dynamic_lookup")
     endif()
     configure_file(cmake/makefile-variables.in
