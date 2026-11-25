@@ -25,18 +25,21 @@ if not sysconfig.get_config_var("SOABI"):
 
 # Modules that are expected to be available
 required = ["math", "json", "re", "zlib", "decimal", "struct", "datetime", "select", "socket", "hashlib",
-            "array", "binascii", "_csv", "_datetime", "_md5", "_sha1", "_sha256", "_sha512", "_random",
-            "_bisect", "_heapq", "_pickle", "_struct", "_json", "_posixsubprocess", "fcntl", "grp", "mmap",
+            "array", "binascii", "_csv", "_datetime", "_md5", "_sha1", "_sha2", "_sha256", "_sha512", "_random",
+            "_bisect", "_heapq", "_pickle", "_struct", "_json", "_posixsubprocess", "fcntl", "mmap",
             "pwd", "resource", "termios", "unicodedata", "_multibytecodec", "_codecs_cn", "_codecs_jp",
-            "_elementtree", "pyexpat", "_socket", "_queue", "_contextvars", "_asyncio", "_statistics"]
-# Modules that depend on third-party libraries that may not be available
-optional = ["_ssl", "sqlite3", "_bz2", "_lzma", "_ctypes", "readline", "_curses", "_curses_panel",
+            "_elementtree", "pyexpat", "_socket", "_queue", "_contextvars", "_asyncio"]
+# Modules that depend on third-party libraries that may not be available, on functions
+# that are not available at the minimum API level (grp requires getgrent(), API level 26),
+# or that are not built by this build system (_statistics)
+optional = ["grp", "_statistics", "_ssl", "sqlite3", "_bz2", "_lzma", "_ctypes", "readline", "_curses", "_curses_panel",
             "_dbm", "_gdbm", "_tkinter", "_uuid", "nis", "_crypt", "spwd", "ossaudiodev"]
 # Modules that are not available in all Python versions
-version_specific = {"_statistics": (3, 8), "_contextvars": (3, 7)}
+# (minimum version, maximum version excluded)
+version_specific = {"_sha2": ((3, 12), (99,)), "_sha256": ((0,), (3, 12)), "_sha512": ((0,), (3, 12))}
 
 for name in required + optional:
-    if name in version_specific and sys.version_info < version_specific[name]:
+    if name in version_specific and not (version_specific[name][0] <= sys.version_info < version_specific[name][1]):
         continue
     try:
         importlib.import_module(name)
