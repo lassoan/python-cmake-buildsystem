@@ -106,6 +106,11 @@ echo "::endgroup::"
 
 unit_tests=${UNIT_TESTS:-all}
 if [[ "${unit_tests}" == "all" ]]; then
+  echo "::group::Virtual environment diagnostics"
+  adb push "${src_dir}/.github/scripts/android_venv_diag.py" "${device_dir}/" > /dev/null
+  run_python android_venv_diag.py || true
+  exit 1
+  echo "::endgroup::"
   echo "::group::Virtual environment"
   # The interpreter of a virtual environment finds the standard library from the base installation
   run_python -m venv --without-pip venv
