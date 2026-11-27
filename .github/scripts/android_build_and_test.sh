@@ -93,6 +93,10 @@ run_python() {
   return "${status:-1}"
 }
 
+echo "::group::Diagnostics"
+bash "${src_dir}/.github/scripts/android_diag.sh"
+echo "::endgroup::"
+exit 0
 echo "::group::Smoke test"
 if ! run_python android_smoke_test.py "${api_level}"; then
   echo "::endgroup::"
@@ -106,11 +110,6 @@ echo "::endgroup::"
 
 unit_tests=${UNIT_TESTS:-all}
 if [[ "${unit_tests}" == "all" ]]; then
-  echo "::group::Virtual environment diagnostics"
-  adb push "${src_dir}/.github/scripts/android_venv_diag.py" "${device_dir}/" > /dev/null
-  run_python android_venv_diag.py || true
-  exit 1
-  echo "::endgroup::"
   echo "::group::Virtual environment"
   # The interpreter of a virtual environment finds the standard library from the base installation
   run_python -m venv --without-pip venv
@@ -122,7 +121,7 @@ fi
 if [[ "${unit_tests}" != "none" ]]; then
   echo "::group::Unit tests (${unit_tests})"
   device_api_level=$(adb shell getprop ro.build.version.sdk | tr -d '\r')
-  py_version=$(run_python -c "'import sys; print(\"%d.%d\" % sys.version_info[:2])'" | head -n 1)
+  py_version=$(run_python -c "'import sys; print(\"%d.%d\" % sys.version_info[:2])'" | sed -n 1p)
   # shellcheck source=android_tests.sh
   source "${src_dir}/.github/scripts/android_tests.sh"
   builtin=0

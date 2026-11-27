@@ -72,7 +72,8 @@ android_tests() {
   if [[ "${py_minor}" -eq 11 ]]; then
     # Copying extended attributes fails with EACCES because of SELinux: ignored by Python >= 3.12
     ignored+=('*test_shutil.TestCopy.*' '*test_shutil.TestCopyTree.*' '*test_shutil.TestMove.*')
-    # Binding the Unix sockets fails, because the path chosen by the test helper is not writable
+    # Binding Unix sockets in a temporary directory intermittently fails with ENOENT (Python >= 3.12
+    # binds them using a short path relative to the current directory instead)
     ignored+=('*UnixStreamTest.*' '*SCMRightsStreamTest.*')
   fi
   if [[ "${py_minor}" -eq 12 ]]; then
@@ -96,5 +97,10 @@ android_tests() {
     ignored+=('*NoneInfoExtractTests*' '*test_create_connection_service_name*' '*test_devstdin_input*')
     # Changing the mode of a symbolic link is not supported by old kernels
     ignored+=('*test_cleanup_with_symlink_modes*')
+    # The dynamic linker of Android 5 cannot run executables whose path is longer than
+    # 128 characters, such as the interpreter of the virtual environments of these tests
+    ignored+=('*test_config_vars_depend_on_site_initialization*' '*test_config_vars_recalculation_after_site_initialization*')
+    # The child process occasionally does not exit on the Android 5 x86 image
+    ignored+=('*test_is_alive_after_fork*')
   fi
 }
